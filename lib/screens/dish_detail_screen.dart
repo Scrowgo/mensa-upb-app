@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../models/dish.dart';
+import '../services/favorites_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/nutrition_card.dart';
 
-class DishDetailScreen extends StatelessWidget {
+class DishDetailScreen extends StatefulWidget {
   final Dish dish;
+  final Mensa mensa;
 
-  const DishDetailScreen({super.key, required this.dish});
+  const DishDetailScreen({super.key, required this.dish, required this.mensa});
+
+  @override
+  State<DishDetailScreen> createState() => _DishDetailScreenState();
+}
+
+class _DishDetailScreenState extends State<DishDetailScreen> {
+  final FavoritesService _favoritesService = FavoritesService();
+
+  Dish get dish => widget.dish;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +53,7 @@ class DishDetailScreen extends StatelessWidget {
     return AspectRatio(
       aspectRatio: 4 / 3,
       child: CachedNetworkImage(
-        imageUrl: dish.imageUrl,
+        imageUrl: widget.dish.imageUrl,
         fit: BoxFit.cover,
         width: double.infinity,
         placeholder: (context, url) => Container(
@@ -94,7 +105,22 @@ class DishDetailScreen extends StatelessWidget {
                   children: [
                     _buildCircleButton(icon: Icons.share),
                     const SizedBox(width: 8),
-                    _buildCircleButton(icon: Icons.favorite_border),
+                    StreamBuilder(
+                      stream: _favoritesService.watchFavorites(),
+                      builder: (context, snapshot) {
+                        final isFav = _favoritesService.isFavorite(widget.dish);
+                        return _buildCircleButton(
+                          icon: isFav ? Icons.favorite : Icons.favorite_border,
+                          iconColor: isFav ? AppTheme.primary : Colors.white,
+                          onTap: () async {
+                            await _favoritesService.toggleFavorite(
+                              widget.dish,
+                              widget.mensa,
+                            );
+                          },
+                        );
+                      },
+                    ),
                   ],
                 ),
               ],
@@ -105,7 +131,11 @@ class DishDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCircleButton({required IconData icon, VoidCallback? onTap}) {
+  Widget _buildCircleButton({
+    required IconData icon,
+    VoidCallback? onTap,
+    Color iconColor = Colors.white,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -115,12 +145,13 @@ class DishDetailScreen extends StatelessWidget {
           color: AppTheme.backgroundDark.withValues(alpha: 0.4),
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, color: Colors.white, size: 22),
+        child: Icon(icon, color: iconColor, size: 22),
       ),
     );
   }
 
   Widget _buildContent(BuildContext context) {
+    final dish = widget.dish;
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.backgroundDark,
@@ -290,7 +321,7 @@ class DishDetailScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 16, color: AppTheme.textPrimary),
               ),
               Text(
-                '${dish.studentPrice.toStringAsFixed(2).replaceAll('.', ',')} €',
+                '${widget.dish.studentPrice.toStringAsFixed(2).replaceAll('.', ',')} €',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,

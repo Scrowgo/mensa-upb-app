@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../models/dish.dart';
 import '../services/mensa_api_service.dart';
+import '../services/favorites_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/dish_card.dart';
 import '../widgets/side_item_row.dart';
 import 'dish_detail_screen.dart';
+import 'favorites_screen.dart';
 
 class MensaDiscoveryScreen extends StatefulWidget {
   const MensaDiscoveryScreen({super.key});
@@ -25,6 +27,8 @@ class _MensaDiscoveryScreenState extends State<MensaDiscoveryScreen> {
   final Map<String, List<Dish>> _cache = {};
   bool _isLoading = false;
   String? _errorMessage;
+
+  final FavoritesService _favoritesService = FavoritesService();
 
   @override
   void initState() {
@@ -89,7 +93,10 @@ class _MensaDiscoveryScreenState extends State<MensaDiscoveryScreen> {
   void _navigateToDetail(Dish dish) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => DishDetailScreen(dish: dish)),
+      MaterialPageRoute(
+        builder: (context) =>
+            DishDetailScreen(dish: dish, mensa: Mensa.all[_selectedMensaIndex]),
+      ),
     );
   }
 
@@ -125,29 +132,51 @@ class _MensaDiscoveryScreenState extends State<MensaDiscoveryScreen> {
       backgroundColor: AppTheme.backgroundDark,
       body: Stack(
         children: [
-          Column(
-            children: [
-              _buildHeader(),
-              Expanded(
-                child: PageView.builder(
-                  controller: _pageController,
-                  itemCount: _weekDays.length,
-                  onPageChanged: (index) {
-                    setState(() => _selectedDayIndex = index);
-                    _loadMeals();
-                  },
-                  itemBuilder: (context, index) {
-                    return _buildDayContent(index);
-                  },
+          if (_selectedNavIndex == 0)
+            Column(
+              children: [
+                _buildHeader(),
+                Expanded(
+                  child: PageView.builder(
+                    controller: _pageController,
+                    itemCount: _weekDays.length,
+                    onPageChanged: (index) {
+                      setState(() => _selectedDayIndex = index);
+                      _loadMeals();
+                    },
+                    itemBuilder: (context, index) {
+                      return _buildDayContent(index);
+                    },
+                  ),
                 ),
-              ),
-            ],
-          ),
-          _buildMensaSelector(),
+              ],
+            )
+          else if (_selectedNavIndex == 1)
+            FavoritesScreen(availableTodayDishes: _getAvailableTodayDishes()),
+
+          if (_selectedNavIndex == 0) _buildMensaSelector(),
+
           _buildBottomNav(),
         ],
       ),
     );
+  }
+
+  Map<String, String> _getAvailableTodayDishes() {
+    final Map<String, String> available = {};
+    final today = _weekDays[_selectedDayIndex];
+
+    // Check all mensas for today's date
+    for (final mensa in Mensa.all) {
+      final key = _cacheKey(mensa.id, today);
+      final meals = _cache[key];
+      if (meals != null) {
+        for (final meal in meals) {
+          available[meal.name.trim().toLowerCase()] = mensa.displayName;
+        }
+      }
+    }
+    return available;
   }
 
   Widget _buildDayContent(int dayIndex) {
@@ -323,28 +352,36 @@ class _MensaDiscoveryScreenState extends State<MensaDiscoveryScreen> {
         ),
         const SizedBox(height: 16),
         if (isLarge)
-          ...dishes.map(
-            (dish) => Padding(
+          ...dishes.map((dish) {
+            dish.isFavorite = _favoritesService.isFavorite(dish);
+            return Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: DishCard(
                 dish: dish,
                 onDetailsTap: () => _navigateToDetail(dish),
-                onFavoriteTap: () {
-                  setState(() => dish.isFavorite = !dish.isFavorite);
+                onFavoriteTap: () async {
+                  await _favoritesService.toggleFavorite(
+                    dish,
+                    Mensa.all[_selectedMensaIndex],
+                  );
+                  setState(() {});
                 },
               ),
-            ),
-          )
+            );
+          })
         else
-          ...dishes.map(
-            (dish) => Padding(
+          ...dishes.map((dish) {
+            dish.isFavorite = _favoritesService.isFavorite(dish);
+            return Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: GestureDetector(
                 onTap: () => _navigateToDetail(dish),
-                child: SideItemRow(dish: dish),
+                child: SideItemRow(
+                  dish: dish,
+                ), // Note: SideItemRow might not have a heart button, but just in case
               ),
-            ),
-          ),
+            );
+          }),
       ],
     );
   }
