@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../domain/models/favorite_dish/favorite_dish.dart';
 import '../domain/models/dish/dish.dart';
 import '../services/favorites_service.dart';
