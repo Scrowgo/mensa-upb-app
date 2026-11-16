@@ -22,7 +22,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   // Controls for accordion sections (expanded by default)
   final Map<String, bool> _expandedSections = {
     'hauptgericht': true,
-    'snack': true,
+    'suppe': true,
     'beilage': true,
     'dessert': true,
   };
@@ -46,12 +46,16 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 return _buildEmptyState();
               }
 
-              // Group by category manually to enforce sequence
+              // Group by category manually to enforce sequence:
+              // 1. Hauptgerichte
+              // 2. Suppen & Eintöpfe
+              // 3. Beilagen
+              // 4. Desserts
               final hauptgerichte = favorites
                   .where((f) => f.displayCategory == 'hauptgericht')
                   .toList();
-              final snacks = favorites
-                  .where((f) => f.displayCategory == 'snack')
+              final suppen = favorites
+                  .where((f) => f.displayCategory == 'suppe')
                   .toList();
               final beilagen = favorites
                   .where((f) => f.displayCategory == 'beilage')
@@ -71,12 +75,12 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                         Icons.restaurant,
                         hauptgerichte,
                       ),
-                    if (snacks.isNotEmpty)
+                    if (suppen.isNotEmpty)
                       _buildCollapsibleSection(
-                        'Snacks',
-                        'snack',
-                        Icons.fastfood,
-                        snacks,
+                        'Suppen & Eintöpfe',
+                        'suppe',
+                        Icons.soup_kitchen,
+                        suppen,
                       ),
                     if (beilagen.isNotEmpty)
                       _buildCollapsibleSection(

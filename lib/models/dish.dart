@@ -40,36 +40,65 @@ class Dish {
   });
 
   /// Determines the display category from the API "category" field.
-  /// Returns 'hauptgericht', 'beilage', 'dessert', or 'snack'.
-  ///
-  /// Check specific categories (dessert, beilage, snack) BEFORE
-  /// broad ones (vegan, vegetarisch) so "Counter Dessert Vegan"
-  /// is correctly classified as dessert, not hauptgericht.
+  /// Follows the Studierendenwerk Paderborn website pattern order:
+  /// 1. Suppen & Eintöpfe: 'eintopf', 'suppe' (priority 2)
+  /// 2. Beilagen: 'beilage', 'sättigungbeil', 'gemüsebeil' (priority 3)
+  /// 3. Desserts: 'dessert' (priority 4)
+  /// 4. Hauptgerichte: 'fleisch', 'fisch', 'vegetarisch', 'vegan', 'aktions',
+  ///    'pasta', 'cafeteria', 'zwischenverpflegung', or fallback (priority 1)
   String get displayCategory {
     final cat = category.toLowerCase();
-    // Specific categories first
-    if (cat.contains('dessert')) {
-      return 'dessert';
+    // 1. Suppen & Eintöpfe — check before Hauptgerichte since Eintopf/Suppe is specific
+    if (cat.contains('eintopf') || cat.contains('suppe')) {
+      return 'suppe';
     }
-    if (cat.contains('beilagensalat') ||
+    // 2. Beilagen
+    if (cat.contains('beilage') ||
         cat.contains('gemüsebeil') ||
         cat.contains('sättigungbeil')) {
       return 'beilage';
     }
-    if (cat.contains('zwischenverpflegung')) {
-      return 'snack';
+    // 3. Desserts
+    if (cat.contains('dessert')) {
+      return 'dessert';
     }
-    // Broad main-dish categories last
-    if (cat.contains('vegan') ||
-        cat.contains('vegetarisch') ||
-        cat.contains('fleisch') ||
-        cat.contains('fisch') ||
-        cat.contains('aktionsessen') ||
-        cat.contains('eintopf') ||
-        cat.contains('cafeteria')) {
-      return 'hauptgericht';
-    }
+    // 4. Hauptgerichte (known main dish types or fallback)
     return 'hauptgericht';
+  }
+
+  /// Priority for sorting:
+  /// 1: Hauptgerichte
+  /// 2: Suppen & Eintöpfe
+  /// 3: Beilagen
+  /// 4: Desserts
+  int get categoryPriority {
+    switch (displayCategory) {
+      case 'hauptgericht':
+        return 1;
+      case 'suppe':
+        return 2;
+      case 'beilage':
+        return 3;
+      case 'dessert':
+        return 4;
+      default:
+        return 5;
+    }
+  }
+
+  String get displayCategoryName {
+    switch (displayCategory) {
+      case 'hauptgericht':
+        return 'Hauptgerichte';
+      case 'suppe':
+        return 'Suppen & Eintöpfe';
+      case 'beilage':
+        return 'Beilagen';
+      case 'dessert':
+        return 'Desserts';
+      default:
+        return 'Hauptgerichte';
+    }
   }
 
   /// Decodes HTML entities commonly found in API responses.
@@ -175,7 +204,7 @@ class Dish {
 }
 
 class Mensa {
-  final String id; // API venue name: 'mensa', 'mensa-forum', 'mensa-zm2'
+  final String id; // API venue slug
   final String displayName;
 
   const Mensa({required this.id, required this.displayName});
@@ -184,5 +213,10 @@ class Mensa {
     Mensa(id: 'mensa', displayName: 'Mensa Academica'),
     Mensa(id: 'mensa-forum', displayName: 'Mensa Forum'),
     Mensa(id: 'mensa-zm2', displayName: 'Mensa ZM2'),
+    Mensa(id: 'mensa-hamm', displayName: 'Mensa Basilica Hamm'),
+    Mensa(id: 'mensa-lippstadt', displayName: 'Mensa Atrium Lippstadt'),
+    Mensa(id: 'bona-vista', displayName: 'Bona Vista'),
+    Mensa(id: 'grill-cafe', displayName: 'Grill|Café'),
+    Mensa(id: 'cafe', displayName: 'Cafete Picknick'),
   ];
 }

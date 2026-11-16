@@ -39,12 +39,15 @@ class _MensaDiscoveryScreenState extends State<MensaDiscoveryScreen> {
   }
 
   void _initWeekDays() {
-    // Find the Monday of the current week
+    // Find Monday of the week. If it's the weekend, jump to the upcoming Monday.
     final now = DateTime.now();
-    final monday = now.subtract(Duration(days: now.weekday - 1));
+    final today = DateTime(now.year, now.month, now.day);
+    final monday = now.weekday > 5
+        ? today.add(Duration(days: 8 - now.weekday))
+        : today.subtract(Duration(days: now.weekday - 1));
     _weekDays = List.generate(5, (i) => monday.add(Duration(days: i)));
 
-    // Select today if it's a weekday, otherwise Monday
+    // Select today if it's within the displayed week, otherwise Monday
     final todayIndex = _weekDays.indexWhere(
       (d) => d.year == now.year && d.month == now.month && d.day == now.day,
     );
@@ -53,6 +56,14 @@ class _MensaDiscoveryScreenState extends State<MensaDiscoveryScreen> {
 
   String _cacheKey(String venue, DateTime date) =>
       '${venue}_${MensaApiService.formatDate(date)}';
+
+  Future<void> _refreshMeals() async {
+    final venue = Mensa.all[_selectedMensaIndex].id;
+    for (final day in _weekDays) {
+      _cache.remove(_cacheKey(venue, day));
+    }
+    await _loadMeals();
+  }
 
   Future<void> _loadMeals() async {
     final venue = Mensa.all[_selectedMensaIndex].id;
@@ -243,9 +254,16 @@ class _MensaDiscoveryScreenState extends State<MensaDiscoveryScreen> {
       );
     }
 
-    // Group by display category
+    // Group by display category in the specified order:
+    // 1. Hauptgerichte
+    // 2. Suppen & Eintöpfe
+    // 3. Beilagen
+    // 4. Desserts
     final hauptgerichte = dayMeals
         .where((d) => d.displayCategory == 'hauptgericht')
+        .toList();
+    final suppen = dayMeals
+        .where((d) => d.displayCategory == 'suppe')
         .toList();
     final beilagen = dayMeals
         .where((d) => d.displayCategory == 'beilage')
@@ -253,51 +271,56 @@ class _MensaDiscoveryScreenState extends State<MensaDiscoveryScreen> {
     final desserts = dayMeals
         .where((d) => d.displayCategory == 'dessert')
         .toList();
-    final snacks = dayMeals.where((d) => d.displayCategory == 'snack').toList();
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 24, 16, 160),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (hauptgerichte.isNotEmpty) ...[
-            _buildSection(
-              icon: Icons.restaurant,
-              title: 'Hauptgerichte',
-              count: hauptgerichte.length,
-              dishes: hauptgerichte,
-              isLarge: true,
-            ),
-            const SizedBox(height: 32),
+    return RefreshIndicator(
+      onRefresh: _refreshMeals,
+      color: AppTheme.primary,
+      backgroundColor: AppTheme.cardDark,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 24, 16, 160),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (hauptgerichte.isNotEmpty) ...[
+              _buildSection(
+                icon: Icons.restaurant,
+                title: 'Hauptgerichte',
+                count: hauptgerichte.length,
+                dishes: hauptgerichte,
+                isLarge: true,
+              ),
+              const SizedBox(height: 32),
+            ],
+            if (suppen.isNotEmpty) ...[
+              _buildSection(
+                icon: Icons.soup_kitchen,
+                title: 'Suppen & Eintöpfe',
+                count: suppen.length,
+                dishes: suppen,
+                isLarge: true,
+              ),
+              const SizedBox(height: 32),
+            ],
+            if (beilagen.isNotEmpty) ...[
+              _buildSection(
+                icon: Icons.lunch_dining,
+                title: 'Beilagen',
+                dishes: beilagen,
+                isLarge: false,
+              ),
+              const SizedBox(height: 32),
+            ],
+            if (desserts.isNotEmpty) ...[
+              _buildSection(
+                icon: Icons.icecream,
+                title: 'Desserts',
+                dishes: desserts,
+                isLarge: false,
+              ),
+            ],
           ],
-          if (snacks.isNotEmpty) ...[
-            _buildSection(
-              icon: Icons.fastfood,
-              title: 'Snacks',
-              count: snacks.length,
-              dishes: snacks,
-              isLarge: true,
-            ),
-            const SizedBox(height: 32),
-          ],
-          if (beilagen.isNotEmpty) ...[
-            _buildSection(
-              icon: Icons.lunch_dining,
-              title: 'Beilagen',
-              dishes: beilagen,
-              isLarge: false,
-            ),
-            const SizedBox(height: 32),
-          ],
-          if (desserts.isNotEmpty) ...[
-            _buildSection(
-              icon: Icons.icecream,
-              title: 'Desserts',
-              dishes: desserts,
-              isLarge: false,
-            ),
-          ],
-        ],
+        ),
       ),
     );
   }

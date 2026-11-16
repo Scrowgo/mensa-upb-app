@@ -56,7 +56,7 @@ final List<Dish> sampleBeilagen = [
     imageUrl:
         'https://lh3.googleusercontent.com/aida-public/AB6AXuC2AobA-emZSakIWQwP8VMtZhwfqhpWgavVC24kgHh6FeeAOz0ia4XcPxbWtttkjjjp2TJQFYegLmop6LhKCHmDx3ztZS2fiJr0Wy-UaNJhoeJJ5skdnKU-p3ooEILw2xi1jPfN273wclbbgCfwlz87RT4QbCdfMInJmX62buOLOUcMF3SP6m3bWJ-vuSVnO7iPqJvKdn16PBBh2g0FAjHUTmGWTdAPjGlkgLxCXb0bKVd56n6zD4Y73hfJdpYSJnKya9ar3wjqzh6Z',
     studentPrice: 1.10,
-    category: 'beilage',
+    category: 'suppe',
   ),
 ];
 

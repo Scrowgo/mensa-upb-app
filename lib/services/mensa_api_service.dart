@@ -6,7 +6,7 @@ class MensaApiService {
   static const String _baseUrl = 'https://stwpb.de/wp-json/stwk-pb/v1/meals';
 
   /// Fetches meals for a given venue and date range.
-  /// [venue] is one of: 'mensa', 'mensa-forum', 'mensa-zm2'
+  /// [venue] is the venue slug, e.g. 'mensa', 'mensa-forum', 'mensa-zm2'
   /// [startDate] and [endDate] are in 'yyyy-MM-dd' format
   static Future<List<Dish>> fetchMeals({
     required String venue,
@@ -25,10 +25,23 @@ class MensaApiService {
       final response = await http.get(uri);
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as Map<String, dynamic>;
-        final meals = data['meals'] as List? ?? [];
-        return meals
+        final rawMeals = data['meals'] as List? ?? [];
+        final meals = rawMeals
+            .where((m) {
+              // Filter out "Restanten" as done on the official university website
+              final cat = (m['category'] as String? ?? '').toLowerCase();
+              return !cat.contains('restanten');
+            })
             .map((m) => Dish.fromJson(m as Map<String, dynamic>))
             .toList();
+
+        // Sort by website category priority:
+        // 1. Hauptgerichte
+        // 2. Suppen & Eintöpfe
+        // 3. Beilagen
+        // 4. Desserts
+        meals.sort((a, b) => a.categoryPriority.compareTo(b.categoryPriority));
+        return meals;
       }
       return [];
     } catch (e) {
