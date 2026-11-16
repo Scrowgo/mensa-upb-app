@@ -1,4 +1,4 @@
-import '../models/dish.dart';
+import '../domain/models/dish/dish.dart';
 
 final List<Dish> sampleHauptgerichte = [
   Dish(

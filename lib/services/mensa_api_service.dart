@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../models/dish.dart';
+import '../domain/models/dish/dish.dart';
 
 class MensaApiService {
   static const String _baseUrl = 'https://stwpb.de/wp-json/stwk-pb/v1/meals';

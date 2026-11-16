@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/favorite_dish.dart';
-import '../models/dish.dart';
+import '../domain/models/favorite_dish/favorite_dish.dart';
+import '../domain/models/dish/dish.dart';
 import '../services/favorites_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/favorite_dish_card.dart';

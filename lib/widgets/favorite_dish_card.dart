@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../models/favorite_dish.dart';
+import '../domain/models/favorite_dish/favorite_dish.dart';
 import '../theme/app_theme.dart';
 
 class FavoriteDishCard extends StatelessWidget {

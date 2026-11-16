@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/dish.dart';
+import '../domain/models/dish/dish.dart';
 import '../services/mensa_api_service.dart';
 import '../services/favorites_service.dart';
 import '../theme/app_theme.dart';
@@ -262,9 +262,7 @@ class _MensaDiscoveryScreenState extends State<MensaDiscoveryScreen> {
     final hauptgerichte = dayMeals
         .where((d) => d.displayCategory == 'hauptgericht')
         .toList();
-    final suppen = dayMeals
-        .where((d) => d.displayCategory == 'suppe')
-        .toList();
+    final suppen = dayMeals.where((d) => d.displayCategory == 'suppe').toList();
     final beilagen = dayMeals
         .where((d) => d.displayCategory == 'beilage')
         .toList();

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../models/dish.dart';
+import '../domain/models/dish/dish.dart';
 import '../theme/app_theme.dart';
 
 class DishCard extends StatelessWidget {
