@@ -28,4 +28,18 @@ class MensaApiResponse {
     required this.meals,
     required this.total,
   });
+
+  factory MensaApiResponse.fromJson(Map<String, dynamic> json) {
+    final rawMeals = json['meals'] as List<dynamic>? ?? [];
+    final parsedMeals = rawMeals.map((e) => MensaApiMeal.fromJson(e)).toList();
+
+    return MensaApiResponse(
+      venue: json['venue']?.toString() ?? '',
+      venueName: json['venue_name']?.toString() ?? '',
+      startDate: json['start_date']?.toString() ?? '',
+      endDate: json['end_date']?.toString() ?? '',
+      meals: parsedMeals,
+      total: (json['total'] as num?)?.toInt() ?? parsedMeals.length,
+    );
+  }
 }

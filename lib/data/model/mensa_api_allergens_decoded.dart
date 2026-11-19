@@ -14,6 +14,18 @@ class MensaApiAllergensDecoded {
     required this.additives,
     required this.rawCodes,
   });
+
+  factory MensaApiAllergensDecoded.fromJson(Map<String, dynamic> json) {
+    final rawAllergens = json['allergens'] as List<dynamic>? ?? [];
+    final rawAdditives = json['additives'] as List<dynamic>? ?? [];
+    final rawCodes = json['raw_codes'] as List<dynamic>? ?? [];
+
+    return MensaApiAllergensDecoded(
+      allergens: rawAllergens.map((e) => MensaApiAllergen.fromJson(e)).toList(),
+      additives: rawAdditives.map((e) => MensaApiAdditive.fromJson(e)).toList(),
+      rawCodes: rawCodes.map((e) => e.toString()).toList(),
+    );
+  }
 }
 
 /// Detailed metadata for a single statutory allergen.
@@ -48,6 +60,18 @@ class MensaApiAllergen {
     required this.active,
     required this.sortOrder,
   });
+
+  factory MensaApiAllergen.fromJson(Map<String, dynamic> json) {
+    return MensaApiAllergen(
+      id: json['id']?.toString() ?? '',
+      code: json['code']?.toString() ?? '',
+      nameDe: json['name_de']?.toString() ?? '',
+      nameEn: json['name_en']?.toString() ?? '',
+      category: json['category']?.toString() ?? '',
+      active: json['active']?.toString() ?? '',
+      sortOrder: json['sort_order']?.toString() ?? '',
+    );
+  }
 }
 
 /// Detailed metadata for a single declarable food additive.
@@ -78,4 +102,15 @@ class MensaApiAdditive {
     required this.active,
     required this.sortOrder,
   });
+
+  factory MensaApiAdditive.fromJson(Map<String, dynamic> json) {
+    return MensaApiAdditive(
+      id: json['id']?.toString() ?? '',
+      code: json['code']?.toString() ?? '',
+      nameDe: json['name_de']?.toString() ?? '',
+      nameEn: json['name_en']?.toString() ?? '',
+      active: json['active']?.toString() ?? '',
+      sortOrder: json['sort_order']?.toString() ?? '',
+    );
+  }
 }

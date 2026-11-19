@@ -85,4 +85,33 @@ class MensaApiMeal {
     required this.imageJpegThumb,
     required this.imageWebpThumb,
   });
+
+  factory MensaApiMeal.fromJson(Map<String, dynamic> json) {
+    final rawDecoded = json['allergens_decoded'];
+
+    return MensaApiMeal(
+      id: (json['id'] as num?)?.toInt() ?? 0,
+      title: json['title']?.toString() ?? '',
+      date: json['date']?.toString() ?? '',
+      dateGerman: json['date_german']?.toString() ?? '',
+      category: json['category']?.toString() ?? '',
+      venue: json['venue']?.toString() ?? '',
+      venueName: json['venue_name']?.toString() ?? '',
+      priceStudents: json['price_students']?.toString() ?? '',
+      priceStaff: json['price_staff']?.toString() ?? '',
+      priceGuests: json['price_guests']?.toString() ?? '',
+      allergensRaw: json['allergens_raw']?.toString() ?? '',
+      allergensDecoded: rawDecoded is Map<String, dynamic>
+          ? MensaApiAllergensDecoded.fromJson(rawDecoded)
+          : null,
+      nutrition: json['nutrition']?.toString() ?? '',
+      button: json['button']?.toString() ?? '',
+      imageJpeg: json['image_jpeg']?.toString() ?? '',
+      imageWebp: json['image_webp']?.toString() ?? '',
+      imageJpegSmall: json['image_jpeg_small']?.toString() ?? '',
+      imageWebpSmall: json['image_webp_small']?.toString() ?? '',
+      imageJpegThumb: json['image_jpeg_thumb']?.toString() ?? '',
+      imageWebpThumb: json['image_webp_thumb']?.toString() ?? '',
+    );
+  }
 }
