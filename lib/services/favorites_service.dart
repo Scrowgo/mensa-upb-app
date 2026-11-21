@@ -1,6 +1,5 @@
 import 'package:hive_ce/hive_ce.dart';
-import '../domain/models/dish/dish.dart';
-import '../domain/models/favorite_dish/favorite_dish.dart';
+import 'package:mensa_app/domain/models.dart';
 
 class FavoritesService {
   static const String _boxName = 'favoritesBox';

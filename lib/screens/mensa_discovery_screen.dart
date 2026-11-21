@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import '../domain/models/dish/dish.dart';
-import '../services/mensa_api_service.dart';
+import '../data/services/mensa_api/mensa_api_service.dart';
 import '../services/favorites_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/dish_card.dart';

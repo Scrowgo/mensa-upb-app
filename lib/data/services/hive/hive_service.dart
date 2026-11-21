@@ -90,4 +90,14 @@ class HiveService {
 
     await hiveBox.deleteAll(hiveBox.keys);
   }
+
+  /// Check for an existing value in a Hive box.
+  Future<bool> boxContains<keyT, valueT>(
+    String boxName, {
+    required keyT key,
+  }) async {
+    Box hiveBox = await _openBox<valueT>(boxName);
+
+    return hiveBox.containsKey(key);
+  }
 }

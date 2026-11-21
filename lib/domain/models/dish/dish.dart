@@ -1,105 +1,40 @@
+import 'package:mensa_app/core/enums.dart';
+import 'package:uuid/uuid.dart';
+
+import '../../../data/model/mensa_api_meal.dart';
+import 'nutrition_info.dart';
+
 class Dish {
-  final int id;
+  late String uuid;
   final String name;
-  final String description;
   final String imageUrl;
+  final DateTime date;
+  final Mensa mensa;
   final double studentPrice;
   final double staffPrice;
   final double guestPrice;
-  final List<String> tags;
-  final double rating;
-  final String energy;
-  final String fat;
-  final String carbs;
-  final String protein;
-  final String ingredients;
-  final List<String> allergens;
-  final String category;
-  final String date;
-  bool isFavorite;
+  final List<DishTag> tags;
+  final DishCategory category;
+  final NutritionInfo nutritionInfo;
+  final List<Allergen> allergens;
+  final List<Additive> additives;
+  final bool isFavorite;
 
   Dish({
-    this.id = 0,
     required this.name,
-    this.description = '',
     this.imageUrl = '',
+    required this.date,
+    required this.mensa,
     required this.studentPrice,
-    this.staffPrice = 0,
-    this.guestPrice = 0,
+    required this.staffPrice,
+    required this.guestPrice,
     this.tags = const [],
-    this.rating = 0,
-    this.energy = '',
-    this.fat = '',
-    this.carbs = '',
-    this.protein = '',
-    this.ingredients = '',
+    this.category = DishCategory.other,
+    this.nutritionInfo = const NutritionInfo(),
     this.allergens = const [],
-    this.category = '',
-    this.date = '',
+    this.additives = const [],
     this.isFavorite = false,
-  });
-
-  /// Determines the display category from the API "category" field.
-  /// Follows the Studierendenwerk Paderborn website pattern order:
-  /// 1. Suppen & Eintöpfe: 'eintopf', 'suppe' (priority 2)
-  /// 2. Beilagen: 'beilage', 'sättigungbeil', 'gemüsebeil' (priority 3)
-  /// 3. Desserts: 'dessert' (priority 4)
-  /// 4. Hauptgerichte: 'fleisch', 'fisch', 'vegetarisch', 'vegan', 'aktions',
-  ///    'pasta', 'cafeteria', 'zwischenverpflegung', or fallback (priority 1)
-  String get displayCategory {
-    final cat = category.toLowerCase();
-    // 1. Suppen & Eintöpfe — check before Hauptgerichte since Eintopf/Suppe is specific
-    if (cat.contains('eintopf') || cat.contains('suppe')) {
-      return 'suppe';
-    }
-    // 2. Beilagen
-    if (cat.contains('beilage') ||
-        cat.contains('gemüsebeil') ||
-        cat.contains('sättigungbeil')) {
-      return 'beilage';
-    }
-    // 3. Desserts
-    if (cat.contains('dessert')) {
-      return 'dessert';
-    }
-    // 4. Hauptgerichte (known main dish types or fallback)
-    return 'hauptgericht';
-  }
-
-  /// Priority for sorting:
-  /// 1: Hauptgerichte
-  /// 2: Suppen & Eintöpfe
-  /// 3: Beilagen
-  /// 4: Desserts
-  int get categoryPriority {
-    switch (displayCategory) {
-      case 'hauptgericht':
-        return 1;
-      case 'suppe':
-        return 2;
-      case 'beilage':
-        return 3;
-      case 'dessert':
-        return 4;
-      default:
-        return 5;
-    }
-  }
-
-  String get displayCategoryName {
-    switch (displayCategory) {
-      case 'hauptgericht':
-        return 'Hauptgerichte';
-      case 'suppe':
-        return 'Suppen & Eintöpfe';
-      case 'beilage':
-        return 'Beilagen';
-      case 'dessert':
-        return 'Desserts';
-      default:
-        return 'Hauptgerichte';
-    }
-  }
+  }) : uuid = const Uuid().v4();
 
   /// Decodes HTML entities commonly found in API responses.
   static String _decodeHtmlEntities(String input) {
@@ -116,107 +51,80 @@ class Dish {
         .replaceAll('&#039;', "'");
   }
 
-  factory Dish.fromJson(Map<String, dynamic> json) {
-    // Parse prices (German format "3,40" to double)
-    double parsePrice(String? price) {
-      if (price == null || price.isEmpty) return 0.0;
-      return double.tryParse(price.replaceAll(',', '.')) ?? 0.0;
-    }
+  static double _parsePrice(String? price) {
+    if (price == null || price.isEmpty) return 0.0;
+    return double.tryParse(price.replaceAll(',', '.')) ?? 0.0;
+  }
 
-    // Parse nutrition string like "Brennwert=798 kJ (191 kcal), Fett=8,1g, Kohlenhydrate=26,5g, Eiweiß=1,1g,"
-    String energy = '';
-    String fat = '';
-    String carbs = '';
-    String protein = '';
-    final nutritionStr = json['nutrition'] as String? ?? '';
-    if (nutritionStr.isNotEmpty) {
-      final kcalMatch = RegExp(r'\((\d+ kcal)\)').firstMatch(nutritionStr);
-      energy = kcalMatch?.group(1) ?? '';
-
-      final fatMatch = RegExp(r'Fett=([\d,]+g)').firstMatch(nutritionStr);
-      fat = fatMatch?.group(1)?.replaceAll(',', '.') ?? '';
-
-      final carbMatch = RegExp(
-        r'Kohlenhydrate=([\d,]+g)',
-      ).firstMatch(nutritionStr);
-      carbs = carbMatch?.group(1)?.replaceAll(',', '.') ?? '';
-
-      final proteinMatch = RegExp(r'Eiweiß=([\d,]+g)').firstMatch(nutritionStr);
-      protein = proteinMatch?.group(1)?.replaceAll(',', '.') ?? '';
-    }
-
-    // Extract tags from category
-    final categoryStr = json['category'] as String? ?? '';
-    List<String> tags = [];
-    final catLower = categoryStr.toLowerCase();
-    if (catLower.contains('vegan')) tags.add('Vegan');
-    if (catLower.contains('vegetarisch')) tags.add('Vegetarisch');
-    if (catLower.contains('fleisch') || catLower.contains('fisch')) {
-      // Check allergens for meat type
-      final allergensDecoded = json['allergens_decoded'];
-      if (allergensDecoded != null && allergensDecoded is Map) {
-        final allergensList = allergensDecoded['allergens'] as List? ?? [];
-        for (final a in allergensList) {
-          if (a['category'] == 'meat') {
-            tags.add(a['name_de'] as String);
-          }
-        }
-        if (allergensList.any(
-          (a) => (a['name_en'] as String? ?? '').toLowerCase() == 'fish',
-        )) {
-          tags.add('Fisch');
-        }
-      }
-      if (tags.isEmpty) tags.add('Fleisch/Fisch');
-    }
-    if (catLower.contains('aktionsessen')) tags.add('Aktion');
+  factory Dish.fromMensaApiMeal(MensaApiMeal meal) {
+    // Convert 'YYYY-MM-DD' to DateTime
+    final split = meal.date.split('-');
+    final year = int.parse(split[0]);
+    final month = int.parse(split[1]);
+    final day = int.parse(split[2]);
+    final date = DateTime(year, month, day);
 
     // Extract allergens
-    List<String> allergens = [];
-    final allergensDecoded = json['allergens_decoded'];
-    if (allergensDecoded != null && allergensDecoded is Map) {
-      final allergensList = allergensDecoded['allergens'] as List? ?? [];
-      for (final a in allergensList) {
-        final cat = a['category'] as String? ?? '';
-        if (cat == 'allergen') {
-          allergens.add(a['name_de'] as String);
-        }
+    final List<Allergen> allergens =
+        meal.allergensDecoded?.allergens
+            .map((a) => Allergen.fromId(a.id))
+            .whereType<Allergen>()
+            .toList() ??
+        [];
+
+    // Extract additives
+    final List<Additive> additives =
+        meal.allergensDecoded?.additives
+            .map((a) => Additive.fromId(a.id))
+            .whereType<Additive>()
+            .toList() ??
+        [];
+
+    // Extract tags
+    List<DishTag> tags = [];
+    final category = meal.category.toLowerCase();
+    if (category.contains('aktionsessen')) tags.add(DishTag.special);
+    if (category.contains('vegan')) tags.add(DishTag.vegan);
+    if (category.contains('vegetarisch')) tags.add(DishTag.vegetarian);
+    if (category.contains('fleisch') || category.contains('fisch')) {
+      // Check allergens for meat or fish type
+      // Adds no tag if both or none allergens are found
+      bool hasFish = false;
+      bool hasMeat = false;
+      for (var allergen in allergens) {
+        if (allergen.id == '4') hasFish = true;
+        if (allergen.id == '29' || allergen.id == '30') hasMeat = true;
       }
+      if (!hasMeat && hasFish) tags.add(DishTag.fish);
+      if (hasMeat && !hasFish) tags.add(DishTag.meat);
     }
 
+    // DishCategory
+    final dishCategory = switch (category) {
+      _ when category.contains('eintopf') || category.contains('suppe') =>
+        DishCategory.soup,
+      _
+          when category.contains('beilage') ||
+              category.contains('gemüsebeil') ||
+              category.contains('sättigungbeil') =>
+        DishCategory.side,
+      _ when category.contains('dessert') => DishCategory.dessert,
+      _ => DishCategory.main,
+    };
+
     return Dish(
-      id: json['id'] as int? ?? 0,
-      name: _decodeHtmlEntities(json['title'] as String? ?? ''),
-      imageUrl: json['image_jpeg'] as String? ?? '',
-      studentPrice: parsePrice(json['price_students'] as String?),
-      staffPrice: parsePrice(json['price_staff'] as String?),
-      guestPrice: parsePrice(json['price_guests'] as String?),
+      name: _decodeHtmlEntities(meal.title as String? ?? ''),
+      imageUrl: meal.imageJpeg,
+      date: date,
+      mensa: Mensa.fromId(meal.venue) ?? Mensa.academica,
+      studentPrice: _parsePrice(meal.priceStudents),
+      staffPrice: _parsePrice(meal.priceStaff),
+      guestPrice: _parsePrice(meal.priceGuests),
       tags: tags,
-      energy: energy,
-      fat: fat,
-      carbs: carbs,
-      protein: protein,
+      category: dishCategory,
+      nutritionInfo: NutritionInfo.fromApiString(meal.nutrition),
       allergens: allergens,
-      category: categoryStr,
-      date: json['date'] as String? ?? '',
+      additives: additives,
     );
   }
-}
-
-class Mensa {
-  final String id; // API venue slug
-  final String displayName;
-
-  const Mensa({required this.id, required this.displayName});
-
-  static const List<Mensa> all = [
-    Mensa(id: 'mensa', displayName: 'Mensa Academica'),
-    Mensa(id: 'mensa-forum', displayName: 'Mensa Forum'),
-    Mensa(id: 'mensa-zm2', displayName: 'Mensa ZM2'),
-    Mensa(id: 'mensa-hamm', displayName: 'Mensa Basilica Hamm'),
-    Mensa(id: 'mensa-lippstadt', displayName: 'Mensa Atrium Lippstadt'),
-    Mensa(id: 'bona-vista', displayName: 'Bona Vista'),
-    Mensa(id: 'grill-cafe', displayName: 'Grill|Café'),
-    Mensa(id: 'cafe', displayName: 'Cafete Picknick'),
-  ];
 }
