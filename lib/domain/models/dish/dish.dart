@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:mensa_app/core/enums.dart';
 import 'package:uuid/uuid.dart';
 
@@ -5,7 +6,7 @@ import '../../../data/model/mensa_api_meal.dart';
 import 'nutrition_info.dart';
 
 class Dish {
-  late String uuid;
+  final String uuid;
   final String name;
   final String imageUrl;
   final DateTime date;
@@ -21,6 +22,7 @@ class Dish {
   final bool isFavorite;
 
   Dish({
+    String? uuid,
     required this.name,
     this.imageUrl = '',
     required this.date,
@@ -34,7 +36,15 @@ class Dish {
     this.allergens = const [],
     this.additives = const [],
     this.isFavorite = false,
-  }) : uuid = const Uuid().v4();
+  }) : uuid = uuid ?? _generateUuid(mensa, date, name);
+
+  static const _uuid = Uuid();
+
+  static String _generateUuid(Mensa mensa, DateTime date, String name) {
+    final dateKey = '${date.year}-${date.month}-${date.day}';
+    final input = '${mensa.id}|$dateKey|${name.trim().toLowerCase()}';
+    return _uuid.v5(Namespace.url.value, input);
+  }
 
   /// Decodes HTML entities commonly found in API responses.
   static String _decodeHtmlEntities(String input) {
@@ -58,11 +68,7 @@ class Dish {
 
   factory Dish.fromMensaApiMeal(MensaApiMeal meal) {
     // Convert 'YYYY-MM-DD' to DateTime
-    final split = meal.date.split('-');
-    final year = int.parse(split[0]);
-    final month = int.parse(split[1]);
-    final day = int.parse(split[2]);
-    final date = DateTime(year, month, day);
+    final date = DateTime.tryParse(meal.date) ?? DateTime.now();
 
     // Extract allergens
     final List<Allergen> allergens =
@@ -92,8 +98,10 @@ class Dish {
       bool hasFish = false;
       bool hasMeat = false;
       for (var allergen in allergens) {
-        if (allergen.id == '4') hasFish = true;
-        if (allergen.id == '29' || allergen.id == '30') hasMeat = true;
+        if (allergen == Allergen.fish) hasFish = true;
+        if (allergen == Allergen.pork || allergen == Allergen.beef) {
+          hasMeat = true;
+        }
       }
       if (!hasMeat && hasFish) tags.add(DishTag.fish);
       if (hasMeat && !hasFish) tags.add(DishTag.meat);
@@ -113,7 +121,7 @@ class Dish {
     };
 
     return Dish(
-      name: _decodeHtmlEntities(meal.title as String? ?? ''),
+      name: _decodeHtmlEntities(meal.title),
       imageUrl: meal.imageJpeg,
       date: date,
       mensa: Mensa.fromId(meal.venue) ?? Mensa.academica,
@@ -127,4 +135,42 @@ class Dish {
       additives: additives,
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Dish &&
+          runtimeType == other.runtimeType &&
+          uuid == other.uuid &&
+          name == other.name &&
+          imageUrl == other.imageUrl &&
+          date == other.date &&
+          mensa == other.mensa &&
+          studentPrice == other.studentPrice &&
+          staffPrice == other.staffPrice &&
+          guestPrice == other.guestPrice &&
+          listEquals(tags, other.tags) &&
+          category == other.category &&
+          nutritionInfo == other.nutritionInfo &&
+          listEquals(allergens, other.allergens) &&
+          listEquals(additives, other.additives) &&
+          isFavorite == other.isFavorite;
+
+  @override
+  int get hashCode => Object.hash(
+        uuid,
+        name,
+        imageUrl,
+        date,
+        mensa,
+        studentPrice,
+        staffPrice,
+        guestPrice,
+        Object.hashAll(tags),
+        category,
+        nutritionInfo,
+        Object.hashAll(allergens),
+        Object.hashAll(additives),
+        isFavorite,
+      );
 }

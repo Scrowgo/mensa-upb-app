@@ -49,4 +49,28 @@ class NutritionInfo {
       saltGrams: _parseMatch(raw, _saltRegex),
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is NutritionInfo &&
+          runtimeType == other.runtimeType &&
+          energyKcal == other.energyKcal &&
+          fatGrams == other.fatGrams &&
+          saturatedFatGrams == other.saturatedFatGrams &&
+          carbsGrams == other.carbsGrams &&
+          sugarGrams == other.sugarGrams &&
+          proteinGrams == other.proteinGrams &&
+          saltGrams == other.saltGrams;
+
+  @override
+  int get hashCode => Object.hash(
+        energyKcal,
+        fatGrams,
+        saturatedFatGrams,
+        carbsGrams,
+        sugarGrams,
+        proteinGrams,
+        saltGrams,
+      );
 }
