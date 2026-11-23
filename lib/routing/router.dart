@@ -56,6 +56,16 @@ class MainScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text("EatUPB"),
+        actions: [
+          IconButton(
+            // TODO: Add onPressed functionality
+            onPressed: () {},
+            icon: Icon(Icons.settings),
+          ),
+        ],
+      ),
       body: SafeArea(child: navigationShell),
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
