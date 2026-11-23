@@ -1,78 +1,86 @@
-import 'package:hive_ce/hive_ce.dart';
+import 'package:mensa_app/core/enums.dart';
 
-class FavoriteDish extends HiveObject {
-  final int dishId;
-  final String name;
-  final String imageUrl;
-  final String category;
-  final double studentPrice;
+import '../dish/dish.dart';
+import '../dish/nutrition_info.dart';
 
-  final String mensaId;
-  final String mensaName;
+class FavoriteDish extends Dish {
   final DateTime favoritedDate;
-  final List<String> tags;
+  final DateTime lastSeen;
 
   FavoriteDish({
-    required this.dishId,
-    required this.name,
-    required this.imageUrl,
-    required this.category,
-    required this.studentPrice,
-    required this.mensaId,
-    required this.mensaName,
+    super.uuid,
+    required super.name,
+    super.imageUrl = '',
+    required super.date,
+    required super.mensa,
+    required super.studentPrice,
+    required super.staffPrice,
+    required super.guestPrice,
+    super.tags = const [],
+    super.category = DishCategory.other,
+    super.nutritionInfo = const NutritionInfo(),
+    super.allergens = const [],
+    super.additives = const [],
     required this.favoritedDate,
-    required this.tags,
-  });
+    required this.lastSeen,
+  }) : super(isFavorite: true);
 
-  String get displayCategory {
-    final cat = category.toLowerCase();
-
-    // Exact same ordering logic as the Dish model to ensure consistency:
-    // 1. Suppen & Eintöpfe — check before Hauptgerichte
-    if (cat.contains('eintopf') || cat.contains('suppe')) {
-      return 'suppe';
-    }
-    // 2. Beilagen
-    if (cat.contains('beilage') ||
-        cat.contains('gemüsebeil') ||
-        cat.contains('sättigungbeil')) {
-      return 'beilage';
-    }
-    // 3. Desserts
-    if (cat.contains('dessert')) {
-      return 'dessert';
-    }
-    // 4. Hauptgerichte
-    return 'hauptgericht';
+  factory FavoriteDish.fromDish(
+    Dish dish, {
+    DateTime? favoritedDate,
+    DateTime? lastSeen,
+  }) {
+    final now = DateTime.now();
+    return FavoriteDish(
+      uuid: dish.uuid,
+      name: dish.name,
+      imageUrl: dish.imageUrl,
+      date: dish.date,
+      mensa: dish.mensa,
+      studentPrice: dish.studentPrice,
+      staffPrice: dish.staffPrice,
+      guestPrice: dish.guestPrice,
+      tags: dish.tags,
+      category: dish.category,
+      nutritionInfo: dish.nutritionInfo,
+      allergens: dish.allergens,
+      additives: dish.additives,
+      favoritedDate: favoritedDate ?? now,
+      lastSeen: lastSeen ?? dish.date,
+    );
   }
 
-  int get categoryPriority {
-    switch (displayCategory) {
-      case 'hauptgericht':
-        return 1;
-      case 'suppe':
-        return 2;
-      case 'beilage':
-        return 3;
-      case 'dessert':
-        return 4;
-      default:
-        return 5;
-    }
+  FavoriteDish copyWith({
+    DateTime? favoritedDate,
+    DateTime? lastSeen,
+  }) {
+    return FavoriteDish(
+      uuid: uuid,
+      name: name,
+      imageUrl: imageUrl,
+      date: date,
+      mensa: mensa,
+      studentPrice: studentPrice,
+      staffPrice: staffPrice,
+      guestPrice: guestPrice,
+      tags: tags,
+      category: category,
+      nutritionInfo: nutritionInfo,
+      allergens: allergens,
+      additives: additives,
+      favoritedDate: favoritedDate ?? this.favoritedDate,
+      lastSeen: lastSeen ?? this.lastSeen,
+    );
   }
 
-  String get displayCategoryName {
-    switch (displayCategory) {
-      case 'hauptgericht':
-        return 'Hauptgerichte';
-      case 'suppe':
-        return 'Suppen & Eintöpfe';
-      case 'beilage':
-        return 'Beilagen';
-      case 'dessert':
-        return 'Desserts';
-      default:
-        return 'Hauptgerichte';
-    }
-  }
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      super == other &&
+          other is FavoriteDish &&
+          favoritedDate == other.favoritedDate &&
+          lastSeen == other.lastSeen;
+
+  @override
+  int get hashCode => Object.hash(super.hashCode, favoritedDate, lastSeen);
 }
