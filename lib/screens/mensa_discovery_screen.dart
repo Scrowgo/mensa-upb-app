@@ -3,7 +3,7 @@ import '../domain/models/dish/dish.dart';
 import '../data/services/mensa_api/mensa_api_service.dart';
 import '../services/favorites_service.dart';
 import '../theme/app_theme.dart';
-import '../widgets/dish_card.dart';
+import '../ui/core/ui/dish_card.dart';
 import '../widgets/side_item_row.dart';
 import 'dish_detail_screen.dart';
 import 'favorites_screen.dart';

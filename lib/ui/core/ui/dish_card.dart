@@ -1,7 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../domain/models/dish/dish.dart';
-import '../theme/app_theme.dart';
+import 'package:mensa_app/core/enums.dart';
+import '../../../domain/models/dish/dish.dart';
+import '../../../theme/app_theme.dart';
 
 class DishCard extends StatelessWidget {
   final Dish dish;
@@ -15,23 +16,19 @@ class DishCard extends StatelessWidget {
     this.onFavoriteTap,
   });
 
-  Color _getTagTextColor(String tag) {
-    switch (tag.toLowerCase()) {
-      case 'vegan':
+  Color _getTagTextColor(DishTag tag) {
+    switch (tag) {
+      case DishTag.vegan || DishTag.vegetarian:
         return AppTheme.backgroundDark;
-      case 'regional':
-        return Colors.white;
       default:
         return Colors.white;
     }
   }
 
-  Color _getTagBgColor(String tag) {
-    switch (tag.toLowerCase()) {
-      case 'vegan':
+  Color _getTagBgColor(DishTag tag) {
+    switch (tag) {
+      case DishTag.vegan || DishTag.vegetarian:
         return AppTheme.primary;
-      case 'regional':
-        return Colors.red.shade600;
       default:
         return AppTheme.backgroundDark.withValues(alpha: 0.8);
     }
@@ -92,7 +89,7 @@ class DishCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(50),
                         ),
                         child: Text(
-                          tag.toUpperCase(),
+                          tag.displayName,
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
@@ -157,14 +154,6 @@ class DishCard extends StatelessWidget {
                       ),
                     ),
                   ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  dish.description,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: AppTheme.textSecondary,
-                  ),
                 ),
                 const SizedBox(height: 16),
                 Row(
