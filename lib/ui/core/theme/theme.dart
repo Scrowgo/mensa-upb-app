@@ -29,4 +29,35 @@ class DarkGreenTheme {
     AppColorToken.warning.token: Colors.orangeAccent,
     AppColorToken.success.token: Colors.lightGreenAccent,
   };
+
+  static Map<TextStyleToken, TextStyle> get textStyles => {
+    AppTextStyleToken.appTitle.token: const .new(
+      fontSize: 22,
+      fontWeight: .bold,
+      fontFamily: 'SpaceGrotesk',
+    ),
+    AppTextStyleToken.headline.token: const .new(
+      fontSize: 18,
+      fontWeight: .bold,
+      fontFamily: 'SpaceGrotesk',
+    ),
+    AppTextStyleToken.body.token: const .new(
+      fontSize: 14,
+      fontFamily: 'SpaceGrotesk',
+    ),
+    AppTextStyleToken.button.token: const .new(
+      fontSize: 14,
+      fontFamily: 'SpaceGrotesk',
+    ),
+  };
+
+  static Map<RadiusToken, Radius> get radii => {
+    AppRadiusToken.medium.token: const .circular(12),
+    AppRadiusToken.large.token: const .circular(100),
+  };
+
+  static Map<SpaceToken, double> get spaces => {
+    AppSpaceToken.medium.token: 16,
+    AppSpaceToken.large.token: 24,
+  };
 }
