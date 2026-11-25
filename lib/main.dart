@@ -8,7 +8,6 @@ import 'package:mix/mix.dart';
 import 'package:provider/provider.dart';
 import 'hive/hive_registrar.g.dart';
 import 'routing/router.dart';
-import 'services/favorites_service.dart';
 import 'theme/app_theme.dart';
 import 'ui/core/theme/theme.dart';
 
@@ -18,7 +17,6 @@ void main() async {
   // Initialize Hive
   await Hive.initFlutter();
   Hive.registerAdapters();
-  await FavoritesService().init();
 
   runApp(
     MultiProvider(
