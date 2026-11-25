@@ -7,12 +7,26 @@ import 'package:mensa_app/hive/hive_adapters.dart';
 
 extension HiveRegistrar on HiveInterface {
   void registerAdapters() {
+    registerAdapter(AdditiveAdapter());
+    registerAdapter(AllergenAdapter());
+    registerAdapter(DishAdapter());
+    registerAdapter(DishCategoryAdapter());
+    registerAdapter(DishTagAdapter());
     registerAdapter(FavoriteDishAdapter());
+    registerAdapter(MensaAdapter());
+    registerAdapter(NutritionInfoAdapter());
   }
 }
 
 extension IsolatedHiveRegistrar on IsolatedHiveInterface {
   void registerAdapters() {
+    registerAdapter(AdditiveAdapter());
+    registerAdapter(AllergenAdapter());
+    registerAdapter(DishAdapter());
+    registerAdapter(DishCategoryAdapter());
+    registerAdapter(DishTagAdapter());
     registerAdapter(FavoriteDishAdapter());
+    registerAdapter(MensaAdapter());
+    registerAdapter(NutritionInfoAdapter());
   }
 }
