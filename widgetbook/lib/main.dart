@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:mensa_app/ui/core/theme/theme.dart';
 import 'package:widgetbook/widgetbook.dart';
 import 'package:widgetbook_annotation/widgetbook_annotation.dart' as widgetbook;
 
@@ -23,6 +24,12 @@ class WidgetbookApp extends StatelessWidget {
       addons: [
         ViewportAddon(Viewports.all),
         AlignmentAddon(initialAlignment: .center),
+        BuilderAddon(
+          name: 'ThemeDataScope',
+          builder: ((context, child) {
+            return Theme(data: AppTheme.dark, child: child);
+          }),
+        ),
       ],
     );
   }

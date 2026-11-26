@@ -17,180 +17,169 @@ class DishCard extends StatelessWidget {
     required this.onFavoriteTap,
   });
 
-  Color _getTagTextColor(DishTag tag) {
-    switch (tag) {
-      case DishTag.vegan || DishTag.vegetarian:
-        return AppTheme.backgroundDark;
-      default:
-        return Colors.white;
-    }
-  }
-
-  Color _getTagBgColor(DishTag tag) {
-    switch (tag) {
-      case DishTag.vegan || DishTag.vegetarian:
-        return AppTheme.primary;
-      default:
-        return AppTheme.backgroundDark.withValues(alpha: 0.8);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final AppColorToken appColor = Theme.of(
+      context,
+    ).extension<AppColorToken>()!;
+    final AppRadiusToken appRadius = Theme.of(
+      context,
+    ).extension<AppRadiusToken>()!;
+    final AppSpaceToken appSpace = Theme.of(
+      context,
+    ).extension<AppSpaceToken>()!;
+    final TextTheme appText = TextTheme.of(context);
+
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF0F1A08).withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF2A3A20)),
+        borderRadius: BorderRadius.circular(appRadius.medium),
+        color: appColor.background,
+      ),
+      foregroundDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(appRadius.medium),
+        border: Border.all(color: appColor.border, width: 2),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: .min,
+        crossAxisAlignment: .start,
         children: [
           // Image section
           Stack(
             children: [
-              CachedNetworkImage(
-                imageUrl: dish.imageUrl,
-                height: 192,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
-                  height: 192,
-                  color: const Color(0xFF1A2A10),
-                  child: const Center(
-                    child: CircularProgressIndicator(color: AppTheme.primary),
+              AspectRatio(
+                aspectRatio: 16 / 9,
+                child: CachedNetworkImage(
+                  imageUrl: dish.imageUrl,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Container(
+                    width: double.infinity,
+                    color: appColor.backgroundDark,
+                    child: Center(
+                      child: CircularProgressIndicator(color: appColor.primary),
+                    ),
                   ),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  height: 192,
-                  color: const Color(0xFF1A2A10),
-                  child: const Icon(
-                    Icons.restaurant,
-                    color: AppTheme.primary,
-                    size: 48,
+                  errorWidget: (context, url, error) => Container(
+                    width: double.infinity,
+                    color: appColor.backgroundLight,
+                    child: Center(
+                      child: Icon(
+                        Icons.restaurant,
+                        color: appColor.primary,
+                        size: 48,
+                      ),
+                    ),
                   ),
                 ),
               ),
               // Tags
               Positioned(
-                top: 12,
-                left: 12,
-                child: Row(
+                top: appSpace.medium,
+                left: appSpace.medium,
+                child: Wrap(
                   children: dish.tags.map((tag) {
                     return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: _getTagBgColor(tag),
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                        child: Text(
-                          tag.displayName,
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: _getTagTextColor(tag),
-                          ),
-                        ),
-                      ),
+                      padding: EdgeInsets.only(right: appSpace.small),
+                      child: DishTagChip(tag: tag),
                     );
                   }).toList(),
                 ),
               ),
               // Favorite button
               Positioned(
-                top: 12,
-                right: 12,
+                top: appSpace.medium,
+                right: appSpace.medium,
                 child: FavoriteButton(onTap: onFavoriteTap),
               ),
             ],
           ),
           // Content section
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.only(
+              top: appSpace.small,
+              left: appSpace.large,
+              right: appSpace.large,
+              bottom: appSpace.large,
+            ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: .end,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: .start,
                   children: [
                     Expanded(
                       child: Text(
                         dish.name,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.textPrimary,
-                          height: 1.2,
-                        ),
+                        maxLines: 2,
+                        overflow: .ellipsis,
+                        style: appText.bodyLarge,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: appSpace.extraLarge),
                     Text(
                       '${dish.studentPrice.toStringAsFixed(2).replaceAll('.', ',')} €',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.primary,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Studierende Preis',
                       style: TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.textTertiary,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: onDetailsTap,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primary,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            Text(
-                              'Details',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                color: AppTheme.backgroundDark,
-                              ),
-                            ),
-                            SizedBox(width: 6),
-                            Icon(
-                              Icons.arrow_forward,
-                              size: 16,
-                              color: AppTheme.backgroundDark,
-                            ),
-                          ],
-                        ),
+                        fontSize: 16,
+                        fontWeight: .bold,
+                        color: appColor.primary,
                       ),
                     ),
                   ],
                 ),
+                SizedBox(height: appSpace.medium),
+                DetailsButton(onTap: onDetailsTap),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class DishTagChip extends StatelessWidget {
+  final DishTag tag;
+
+  const DishTagChip({super.key, required this.tag});
+
+  Color _getTagTextColor(DishTag tag, AppColorToken appColor) {
+    switch (tag) {
+      case DishTag.vegan || DishTag.vegetarian:
+        return appColor.onPrimary;
+      default:
+        return appColor.text;
+    }
+  }
+
+  Color _getTagBgColor(DishTag tag, AppColorToken appColor) {
+    switch (tag) {
+      case DishTag.vegan || DishTag.vegetarian:
+        return appColor.primary;
+      default:
+        return appColor.backgroundDark.withValues(alpha: 0.8);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final AppColorToken appColor = Theme.of(
+      context,
+    ).extension<AppColorToken>()!;
+    final TextTheme appText = TextTheme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: ShapeDecoration(
+        color: _getTagBgColor(tag, appColor),
+        shape: StadiumBorder(),
+      ),
+      child: Text(
+        tag.displayName,
+        style: appText.labelSmall!.copyWith(
+          fontWeight: .bold,
+          color: _getTagTextColor(tag, appColor),
+        ),
       ),
     );
   }
@@ -208,7 +197,30 @@ class FavoriteButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Placeholder();
+    final AppColorToken appColor = Theme.of(
+      context,
+    ).extension<AppColorToken>()!;
+
+    final focused = BoxStyler().border(
+      .color(isFavorite ? appColor.primary : Colors.white).width(1.5),
+    );
+
+    final button = BoxStyler()
+        .size(40, 40)
+        .color(appColor.backgroundDark.withValues(alpha: 0.8))
+        .alignment(.center)
+        .shape(.circle())
+        .onPressed(.scale(0.85))
+        .onFocusVisible(focused)
+        .animate(.easeOut(140.ms));
+
+    final icon = IconStyler()
+        .color(isFavorite ? appColor.primary : Colors.white)
+        .size(20)
+        .icon(isFavorite ? Icons.favorite : Icons.favorite_border)
+        .animate(.easeInOut(300.ms));
+
+    return button.pressable(onPress: onTap, child: icon());
   }
 }
 
@@ -219,6 +231,47 @@ class DetailsButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Placeholder();
+    final AppColorToken appColor = Theme.of(
+      context,
+    ).extension<AppColorToken>()!;
+    final AppRadiusToken appRadius = Theme.of(
+      context,
+    ).extension<AppRadiusToken>()!;
+    final AppSpaceToken appSpace = Theme.of(
+      context,
+    ).extension<AppSpaceToken>()!;
+    final TextTheme appText = TextTheme.of(context);
+
+    final focused = BoxStyler().border(.color(appColor.primary).width(1.5));
+
+    final button = BoxStyler()
+        .color(appColor.primary)
+        .padding(.symmetric(horizontal: 16, vertical: 10))
+        .borderRadius(.all(Radius.circular(appRadius.extraSmall)))
+        .onPressed(.scale(0.95))
+        .onFocusVisible(focused)
+        .animate(.easeOut(140.ms));
+
+    final icon = IconStyler()
+        .color(appColor.onPrimary)
+        .size(20)
+        .icon(Icons.arrow_forward);
+
+    return button.pressable(
+      child: Row(
+        mainAxisSize: .min,
+        spacing: appSpace.small,
+        children: [
+          Text(
+            'Details',
+            style: appText.bodyMedium!.copyWith(
+              color: appColor.onPrimary,
+              fontWeight: .w700,
+            ),
+          ),
+          icon(),
+        ],
+      ),
+    );
   }
 }
