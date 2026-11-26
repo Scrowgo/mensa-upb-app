@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:widgetbook/widgetbook.dart';
 import 'package:widgetbook_annotation/widgetbook_annotation.dart' as widgetbook;
 
 // Import the widget from your app
@@ -18,5 +19,19 @@ Widget buildDishCardUseCase(BuildContext context) {
       guestPrice: 6.30,
     ),
     onDetailsTap: () {},
+    onFavoriteTap: () {},
   );
+}
+
+@widgetbook.UseCase(name: 'Default', type: FavoriteButton)
+Widget buildFavoriteButtonUseCase(BuildContext context) {
+  return FavoriteButton(
+    onTap: () {},
+    isFavorite: context.knobs.boolean(label: 'isFavorite'),
+  );
+}
+
+@widgetbook.UseCase(name: 'Default', type: DetailsButton)
+Widget buildDetailsButtonUseCase(BuildContext context) {
+  return DetailsButton(onTap: () {});
 }

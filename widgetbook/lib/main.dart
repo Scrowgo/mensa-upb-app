@@ -1,4 +1,6 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:mensa_app/ui/core/theme/theme.dart';
+import 'package:mix/mix.dart';
 import 'package:widgetbook/widgetbook.dart';
 import 'package:widgetbook_annotation/widgetbook_annotation.dart' as widgetbook;
 
@@ -20,6 +22,22 @@ class WidgetbookApp extends StatelessWidget {
       // The [directories] variable does not exist yet,
       // it will be generated in the next step
       directories: directories,
+      addons: [
+        ViewportAddon(Viewports.all),
+        AlignmentAddon(initialAlignment: .center),
+        BuilderAddon(
+          name: 'MixScope',
+          builder: ((context, child) {
+            return MixScope(
+              colors: DarkGreenTheme.colors,
+              textStyles: DarkGreenTheme.textStyles,
+              radii: DarkGreenTheme.radii,
+              spaces: DarkGreenTheme.spaces,
+              child: child,
+            );
+          }),
+        ),
+      ],
     );
   }
 }
