@@ -5,6 +5,7 @@ import "package:mensa_app/routing/routes.dart";
 
 GoRouter createRouter() {
   return GoRouter(
+    initialLocation: Routes.mensaDiscovery,
     routes: [
       // Main Navigation Scaffold with bottom navigation bar
       StatefulShellRoute.indexedStack(

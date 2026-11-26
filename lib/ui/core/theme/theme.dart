@@ -1,63 +1,160 @@
+import 'package:google_fonts/google_fonts.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mix/mix.dart';
 
+import 'neon_moss.dart';
 import 'tokens.dart';
 
-class DarkGreenTheme {
-  static Map<ColorToken, Color> get colors => {
-    // Brand Colors
-    AppColorToken.primary.token: Color(0xFF80F20D),
-    AppColorToken.onPrimary.token: Colors.black,
-    AppColorToken.secondary.token: Colors.yellow,
+class AppTheme {
+  /// The light theme of EatUPB.
+  static ThemeData get light {
+    final baseLight = ThemeData.light(useMaterial3: true);
+    final textTheme = GoogleFonts.spaceGroteskTextTheme(baseLight.textTheme);
 
-    // Background Colors
-    AppColorToken.backgroundDark.token: Color(0xFF192210),
-    AppColorToken.background.token: Color(0xFF1A2A10),
-    AppColorToken.backgroundLight.token: Color.fromARGB(255, 30, 48, 18),
+    // TODO: Define light theme
+    return baseLight.copyWith(textTheme: textTheme);
+  }
 
-    // Text Colors
-    AppColorToken.text.token: Color(0xFFF2F2F2),
-    AppColorToken.textMuted.token: Color(0xFFB3B3B3),
+  /// The dark theme of ManaMetrics.
+  static ThemeData get dark {
+    final baseDark = ThemeData.dark(useMaterial3: true);
+    final textTheme = GoogleFonts.spaceGroteskTextTheme(baseDark.textTheme);
 
-    // Border Colors
-    AppColorToken.highlight.token: Color.fromARGB(255, 98, 185, 10),
-    AppColorToken.border.token: Color(0xFF2A3A20),
-    AppColorToken.borderMuted.token: Color(0xFF0F1A0A),
+    return ThemeData(
+      useMaterial3: true,
 
-    // Alert Colors
-    AppColorToken.error.token: Colors.redAccent,
-    AppColorToken.warning.token: Colors.orangeAccent,
-    AppColorToken.success.token: Colors.lightGreenAccent,
-  };
+      // Colors
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: NeonMossDark.color.primary,
+        brightness: Brightness.dark,
+        dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
+        primary: NeonMossDark.color.primary,
+        onPrimary: NeonMossDark.color.onPrimary,
+        secondary: NeonMossDark.color.secondary,
+      ),
+      scaffoldBackgroundColor: NeonMossDark.color.backgroundDark,
 
-  static Map<TextStyleToken, TextStyle> get textStyles => {
-    AppTextStyleToken.appTitle.token: const .new(
-      fontSize: 22,
-      fontWeight: .bold,
-      fontFamily: 'SpaceGrotesk',
-    ),
-    AppTextStyleToken.headline.token: const .new(
-      fontSize: 18,
-      fontWeight: .bold,
-      fontFamily: 'SpaceGrotesk',
-    ),
-    AppTextStyleToken.body.token: const .new(
-      fontSize: 14,
-      fontFamily: 'SpaceGrotesk',
-    ),
-    AppTextStyleToken.button.token: const .new(
-      fontSize: 14,
-      fontFamily: 'SpaceGrotesk',
-    ),
-  };
+      // Typography
+      fontFamily: GoogleFonts.spaceGrotesk().fontFamily,
+      textTheme: textTheme.copyWith(
+        displayLarge: textTheme.displayLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: NeonMossDark.color.text,
+        ),
+        displayMedium: textTheme.displayMedium?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: NeonMossDark.color.text,
+        ),
+        displaySmall: textTheme.displaySmall?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: NeonMossDark.color.text,
+        ),
+        headlineLarge: textTheme.headlineLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: NeonMossDark.color.text,
+        ),
+        headlineMedium: textTheme.headlineMedium?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: NeonMossDark.color.text,
+        ),
+        headlineSmall: textTheme.headlineSmall?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: NeonMossDark.color.text,
+        ),
+        titleLarge: textTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: NeonMossDark.color.text,
+        ),
+        titleMedium: textTheme.titleMedium?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: NeonMossDark.color.text,
+        ),
+        titleSmall: textTheme.titleSmall?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: NeonMossDark.color.text,
+        ),
+        bodyLarge: textTheme.bodyLarge?.copyWith(
+          color: NeonMossDark.color.text,
+        ),
+        bodyMedium: textTheme.bodyMedium?.copyWith(
+          color: NeonMossDark.color.text,
+        ),
+        bodySmall: textTheme.bodySmall?.copyWith(
+          color: NeonMossDark.color.text,
+        ),
+        labelLarge: textTheme.labelLarge?.copyWith(
+          color: NeonMossDark.color.text,
+          fontWeight: FontWeight.bold,
+        ),
+        labelMedium: textTheme.labelMedium?.copyWith(
+          color: NeonMossDark.color.text,
+        ),
+        labelSmall: textTheme.labelSmall?.copyWith(
+          color: NeonMossDark.color.text,
+        ),
+      ),
 
-  static Map<RadiusToken, Radius> get radii => {
-    AppRadiusToken.medium.token: const .circular(12),
-    AppRadiusToken.large.token: const .circular(100),
-  };
+      // Extensions
+      extensions: <ThemeExtension<dynamic>>[
+        AppColorToken(
+          primary: NeonMossDark.color.primary,
+          onPrimary: NeonMossDark.color.onPrimary,
+          secondary: NeonMossDark.color.secondary,
+          backgroundDark: NeonMossDark.color.backgroundDark,
+          background: NeonMossDark.color.background,
+          backgroundLight: NeonMossDark.color.backgroundLight,
+          text: NeonMossDark.color.text,
+          textMuted: NeonMossDark.color.textMuted,
+          highlight: NeonMossDark.color.highlight,
+          border: NeonMossDark.color.border,
+          borderMuted: NeonMossDark.color.borderMuted,
+          error: NeonMossDark.color.error,
+          warning: NeonMossDark.color.warning,
+          success: NeonMossDark.color.success,
+        ),
+        AppRadiusToken(
+          extraSmall: NeonMossDark.radius.extraSmall,
+          small: NeonMossDark.radius.small,
+          medium: NeonMossDark.radius.medium,
+          large: NeonMossDark.radius.large,
+          extraLarge: NeonMossDark.radius.extraLarge,
+        ),
+        AppSpaceToken(
+          extraSmall: NeonMossDark.space.extraSmall,
+          small: NeonMossDark.space.small,
+          medium: NeonMossDark.space.medium,
+          large: NeonMossDark.space.large,
+          extraLarge: NeonMossDark.space.extraLarge,
+        ),
+      ],
 
-  static Map<SpaceToken, double> get spaces => {
-    AppSpaceToken.medium.token: 16,
-    AppSpaceToken.large.token: 24,
-  };
+      // <Widget>ThemeData Overrides (sorted alphabetically from here)
+      appBarTheme: AppBarThemeData(
+        backgroundColor: NeonMossDark.color.backgroundDark,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+      ),
+
+      dividerTheme: DividerThemeData(
+        color: NeonMossDark.color.borderMuted,
+        thickness: 2,
+      ),
+
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          foregroundColor: NeonMossDark.color.onPrimary,
+          backgroundColor: NeonMossDark.color.primary,
+          textStyle: textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: NeonMossDark.color.text,
+          iconSize: 26,
+        ),
+      ),
+    );
+  }
 }

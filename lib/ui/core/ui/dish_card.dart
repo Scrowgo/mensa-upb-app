@@ -4,7 +4,6 @@ import 'package:mensa_app/core/enums.dart';
 import 'package:mensa_app/ui/core/theme/tokens.dart';
 import 'package:mix/mix.dart';
 import '../../../domain/models/dish/dish.dart';
-import '../../../theme/app_theme.dart';
 
 class DishCard extends StatelessWidget {
   final Dish dish;
@@ -209,28 +208,7 @@ class FavoriteButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final focused = BoxStyler().border(
-      .color(
-        isFavorite ? AppColorToken.primary.token() : Colors.white,
-      ).width(1.5),
-    );
-
-    final button = BoxStyler()
-        .size(40, 40)
-        .color(Colors.black.withValues(alpha: 0.4))
-        .alignment(.center)
-        .borderRadius(.all(AppRadiusToken.large.token()))
-        .onPressed(.scale(0.85))
-        .onFocusVisible(focused)
-        .animate(.easeOut(140.ms));
-
-    final icon = IconStyler()
-        .color(isFavorite ? AppColorToken.primary.token() : Colors.white)
-        .size(20)
-        .icon(isFavorite ? Icons.favorite : Icons.favorite_border)
-        .animate(.easeInOut(300.ms));
-
-    return button.pressable(onPress: onTap, child: icon());
+    return Placeholder();
   }
 }
 
@@ -241,31 +219,6 @@ class DetailsButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final focused = BoxStyler().border(
-      .color(AppColorToken.primary.token()).width(1.5),
-    );
-
-    final button = BoxStyler()
-        .color(AppColorToken.primary.token())
-        .padding(.symmetric(horizontal: 16, vertical: 10))
-        .borderRadius(.all(AppRadiusToken.medium.token()))
-        .onPressed(.scale(0.85))
-        .onFocusVisible(focused)
-        .animate(.easeOut(140.ms));
-
-    final label = TextStyler()
-        .style(AppTextStyleToken.button.token.mix())
-        .fontWeight(.w700)
-        .color(AppColorToken.onPrimary.token());
-
-    final icon = IconStyler()
-        .color(AppColorToken.onPrimary.token())
-        .size(16)
-        .icon(Icons.arrow_forward);
-
-    return button.pressable(
-      onPress: onTap,
-      child: Row(mainAxisSize: .min, children: [label('Details'), icon()]),
-    );
+    return Placeholder();
   }
 }
